@@ -21,8 +21,9 @@ async function test() {
     ],
   }
 
-  const contractAddress = '0xbdc05170D3e20283318847d182331b488B98F526';
+  const contractAddress = '0x5f293fa5CEf4d0321A844696d6594F3B89E72DdE';
   const kxrpAddress = '0x9eaeFb09fe4aABFbE6b1ca316a3c36aFC83A393F';
+  const otherUserAddress = '0x1466b03b38c17e31fDd304B20c3Adb126E4eDE0c';
 
   const caver = new Caver(new Caver.providers.HttpProvider(klaytnApiNode, option))
   const deployerKeyring = caver.wallet.keyring.create(testAddress, testPrivateKey);
@@ -55,12 +56,18 @@ async function test() {
     console.log(res);
 
     // revert execution error 2
-    const otherUserAddress = '0x1466b03b38c17e31fDd304B20c3Adb126E4eDE0c';
     const res2 = await transferTestContract.send({
       from: testAddress,
       gas: 500000,
     }, 'test', otherUserAddress, kxrpAddress, amount);
     console.log(res2);
+
+    // revert execution error 3
+    const res3 = await transferTestContract.methods.test(otherUserAddress, kxrpAddress, amount).send({
+      from: testAddress,
+      gas: 50_0000,
+    });
+    console.log(res3);
 
   } catch (e) {
     console.error(e);
