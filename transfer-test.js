@@ -1,0 +1,70 @@
+const Caver = require('caver-js');
+const transferTestContractMeta = require('./build/TransferTest.json');
+const iERC20ContractMeta = require('./build/IERC20.json');
+
+const klaytnApiNode = process.env.KLAYTN_API_NODE;
+const klaytnApiAccessKey = process.env.KLAYTN_API_ACCESS_KEY;
+const klaytnApiSecretKey = process.env.KLAYTN_API_SECRET_KEY;
+const klaytnChainId = 8217;
+
+const testAddress = process.env.KLAYTN_TEST_ACCOUNT_PUBLIC_ADDRESS;
+const testPrivateKey = process.env.KLAYTN_TEST_ACCOUNT_PRIVATE_KEY;
+
+async function test() {
+  const option = {
+    headers: [
+      {
+        name: 'Authorization',
+        value: `Basic ${Buffer.from(`${klaytnApiAccessKey}:${klaytnApiSecretKey}`).toString('base64')}`,
+      },
+      { name: 'x-chain-id', value: klaytnChainId },
+    ],
+  }
+
+  const contractAddress = '0xbdc05170D3e20283318847d182331b488B98F526';
+  const kxrpAddress = '0x9eaeFb09fe4aABFbE6b1ca316a3c36aFC83A393F';
+
+  const caver = new Caver(new Caver.providers.HttpProvider(klaytnApiNode, option))
+  const deployerKeyring = caver.wallet.keyring.create(testAddress, testPrivateKey);
+  caver.wallet.add(deployerKeyring);
+
+  try {
+    const amount = 5;
+
+    console.log(`userAddress: ${testAddress}`);
+
+    const kxrpContract = caver.contract.create(iERC20ContractMeta.abi, kxrpAddress);
+
+    // success
+    const approveRes = await kxrpContract.send({
+      from: testAddress,
+      gas: 10_0000,
+    }, 'approve', contractAddress, amount);
+    console.log(approveRes);
+
+    // result: 5
+    const allowanceRes = await kxrpContract.call('allowance', testAddress, contractAddress);
+    console.log(allowanceRes);
+
+    // revert execution error 1
+    const transferTestContract = caver.contract.create(transferTestContractMeta.abi, contractAddress);
+    const res = await transferTestContract.send({
+      from: testAddress,
+      gas: 500000,
+    }, 'test', contractAddress, kxrpAddress, amount);
+    console.log(res);
+
+    // revert execution error 2
+    const otherUserAddress = '0x1466b03b38c17e31fDd304B20c3Adb126E4eDE0c';
+    const res2 = await transferTestContract.send({
+      from: testAddress,
+      gas: 500000,
+    }, 'test', otherUserAddress, kxrpAddress, amount);
+    console.log(res2);
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+test().then();

@@ -1,0 +1,26 @@
+{
+  "name": "transfer-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "scripts": {
+    "compile": "truffle compile",
+    "deploy": "env-cmd -e test node deploy.js",
+    "test": "env-cmd -e test node transfer-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reaperes/transfer-test.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reaperes/transfer-test/issues"
+  },
+  "homepage": "https://github.com/reaperes/transfer-test#readme",
+  "dependencies": {
+    "caver-js": "^1.6.4",
+    "env-cmd": "^10.1.0",
+    "truffle": "^5.4.16"
+  }
+}
