@@ -37,6 +37,16 @@ async function test() {
     const kxrpContract = caver.contract.create(iERC20ContractMeta.abi, kxrpAddress);
 
     // success
+    //const approveRes = await kxrpContract.send({
+    //  from: testAddress,
+    //  gas: 10_0000,
+    //}, 'approve', contractAddress, amount);
+    //console.log(approveRes);
+
+    const kip7 = new caver.kct.kip7(kxrpAddress);
+    kip7.options.from = testAddress;
+    await kip7.approve(contractAddress, amount);
+
     const approveRes = await kxrpContract.send({
       from: testAddress,
       gas: 10_0000,
